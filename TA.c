@@ -27,10 +27,10 @@ int CurrentIndex = 0;
  
  */
 
-sem_t TA_sleep;			//TA sleeps if no students are at the desk
-sem_t student_chair;	//Ensures only one student is at the chair
-sem_t student_waiting;	//Controls the number of students that can wait
-sem_t signal;			//Used to signal when a TA is finished
+sem_t TA_sleep;				//TA sleeps if no students are at the desk
+sem_t student_signal[3];	//Signals for when the student needs help
+sem_t student_waiting;		//Controls the number of students that can wait
+sem_t signal_done;			//Used to signal when a TA is finished
 
 pthread_mutex_t mutex;
 
@@ -52,9 +52,9 @@ int main(int argc, char* argv[])
      
      */
 	sem_init(&TA_sleep, 0, 0);
-	sem_init(&student_chair, 0, 1);
+	sem_init(&student_signal, 0, 3);
 	sem_init(&student_waiting, 0, number_of_students);
-	sem_init(&signal, 0, 0);
+	sem_init(&signal_done, 0, 0);
 	//initialize mutex
 
 	if(argc<2)
@@ -115,17 +115,17 @@ void *TA_Activity()
 	 	sem_wait(&TA_sleep);
 
 		//TA is waiting for a student
-		sem_wait(&student_chair);
+		sem_wait(&student_signal);
 		
 		printf("The TA is helping the student.\n");
 		//implement sleep time here to simulate the time spent helping the student
 		sleep(X)
 
 		//signals for next student
-		sem_post(&signal);
+		sem_post(&done_signal);
 
 		//releases chair for next student
-		sem_post(&student_chair);
+		sem_post(&student_signal);
 
 	 }
 
